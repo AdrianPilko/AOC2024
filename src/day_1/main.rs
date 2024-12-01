@@ -1,11 +1,11 @@
+use std::collections::HashMap;
 use std::env;
 use std::fs;
-use std::collections::HashMap;
 
 // advent of code 2024 : day 1
 // build with: cargo build
 // run with  : cargo run -- ./src/day_1/intput.txt
- 
+
 fn parse_two_columns(input: &str) -> Result<(Vec<i32>, Vec<i32>), Box<dyn std::error::Error>> {
     let mut column1 = Vec::new();
     let mut column2 = Vec::new();
@@ -51,7 +51,7 @@ fn main() {
 
             println!("Day 1 part 1 answer, Sum is {}", _sum);
 
-                // Count matches and compute the product of counts
+            // Count matches and compute the product of counts
             let mut match_counts = HashMap::new();
             let mut total_product: usize = 0;
             // part 2 has to find sum of the matched counts of numbers in second column
@@ -60,11 +60,11 @@ fn main() {
             for &num in &col1 {
                 let count = col2.iter().filter(|&&x| x == num).count();
                 match_counts.insert(num, count);
-        
+
                 // Avoid multiplying by 0; if count is 0, total_product becomes 0
                 if count > 0 {
                     total_product += count * (num as usize);
-                } 
+                }
             }
             println!("Day 1 part 2 answer, Sum is {}", total_product);
         }

@@ -4,7 +4,7 @@ use std::fs;
 // advent of code 2024 : day 2
 // build with: cargo build
 // run with  : cargo run -- ./src/day_2/intput.txt
- 
+
 fn main() {
     // get the input file name from args
     let args: Vec<String> = env::args().collect();
