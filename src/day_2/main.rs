@@ -5,6 +5,15 @@ use std::fs;
 // build with: cargo build
 // run with  : cargo run -- ./src/day_2/intput.txt
 
+fn string_to_vec(input: &str) -> Result<Vec<i32>, Box<dyn std::error::Error>> {
+    input
+        .split_whitespace() // Split by whitespace
+        .map(|s| s.parse::<i32>()) // Parse each substring as i32
+        .collect::<Result<Vec<i32>, _>>() // Collect into a Vec<i32>, handling errors
+        .map_err(|e| e.into()) // Convert the error type if any parsing fails
+}
+
+
 fn main() {
     // get the input file name from args
     let args: Vec<String> = env::args().collect();
@@ -17,15 +26,15 @@ fn main() {
     let mut sum_of_valid_line: i32 = 0;
 
     for line in contents.lines() {
-        let numbers: Vec<&str> = line.split_whitespace().collect();
-        let line_length: usize = numbers.len();
+        let Ok(number) = string_to_vec(line) else { continue };
+        let line_length: usize = number.len();
         let mut line_safe: bool = true;
         let mut increasing: bool = false;
         let mut _decreasing: bool = false;
 
         for i in 0..line_length - 1 {
-            let num1: i32 = numbers[i].parse::<i32>().unwrap();
-            let num2: i32 = numbers[i + 1].parse::<i32>().unwrap();
+            let num1: i32 = number[i];
+            let num2: i32 = number[i + 1];
 
             if (num1 < num2) && (_decreasing == true) {
                 line_safe = false;
