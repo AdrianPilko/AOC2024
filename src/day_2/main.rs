@@ -24,13 +24,19 @@ fn main() {
     let contents = fs::read_to_string(input_file).expect("error reading file into string");
 
     let mut sum_of_valid_line: i32 = 0;
+    let mut sum_of_valid_line_part_2: i32 = 0;
+    
 
     for line in contents.lines() {
         let Ok(number) = string_to_vec(line) else { continue };
         let line_length: usize = number.len();
         let mut line_safe: bool = true;
+        let mut line_would_be_safe: bool = true;
         let mut increasing: bool = false;
         let mut _decreasing: bool = false;
+
+        let mut count_of_faults = 0;
+
 
         for i in 0..line_length - 1 {
             let num1: i32 = number[i];
@@ -38,30 +44,44 @@ fn main() {
 
             if (num1 < num2) && (_decreasing == true) {
                 line_safe = false;
+                count_of_faults += 1;
             }
-            if (num1 > num2) && (increasing == true) {
+            else if (num1 > num2) && (increasing == true) {
                 line_safe = false;
+                count_of_faults += 1;
             }
-            if num1 == num2 {
+            else if num1 == num2 {
                 line_safe = false;
+                count_of_faults += 1;
             }
-            if (num1 - num2).abs() > 3 {
+            else if (num1 - num2).abs() > 3 {
                 line_safe = false;
+                count_of_faults += 1;
             }
-            if increasing == true && _decreasing == true {
+            else if increasing == true && _decreasing == true {
                 line_safe = false;
+                count_of_faults += 1;
             }
 
             increasing = num1 < num2;
             _decreasing = num1 > num2;
+
+            if count_of_faults >= 2
+            {
+                line_would_be_safe = false;
+            }
         }
 
-        println!("line = {} and safe =={}", line, line_safe);
+        println!("line= {} and safe=={} would be safe=={} fault_count=={}", line, line_safe, line_would_be_safe, count_of_faults);
 
         if line_safe == true {
             sum_of_valid_line += 1;
+            sum_of_valid_line_part_2 += 1;
+        }
+        else if line_would_be_safe == true
+        {
+            sum_of_valid_line_part_2 += 1;
         }
     }
-
-    println!("Valid lines = {}\n", sum_of_valid_line);
+    println!("Valid lines = {}, would be valid {}\n", sum_of_valid_line ,sum_of_valid_line_part_2);
 }
