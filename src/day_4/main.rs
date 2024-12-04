@@ -58,5 +58,7 @@ fn main() {
         result += find_in_a_row_backwards(line);
         println!("{:?}", line);
     }
+    // read a vertical column from contents by using offset
+    // todo GIVE UP after 1 hour
     println!("Result ={}\n", result);
 }
