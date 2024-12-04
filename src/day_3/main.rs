@@ -5,8 +5,6 @@ use std::fs;
 // build with: cargo build
 // run with  : cargo run --bin day_3 ./src/day_3/intput.txt
 
-
-
 fn find_and_multiply(input: &String) -> Vec<i32> {
     let mut results = Vec::new();
     let pattern = "mul(";
@@ -30,13 +28,11 @@ fn sum_of_products(input: &Vec<i32>) -> i32 {
     let mut sum: i32 = 0;
 
     for element in input {
-       sum = sum + element
+        sum = sum + element
     }
 
     sum
 }
-
-
 
 fn parse_numbers(slice: &str) -> Option<(i32, i32)> {
     let numbers: Vec<&str> = slice.split(',').collect();
@@ -47,7 +43,6 @@ fn parse_numbers(slice: &str) -> Option<(i32, i32)> {
     }
     None
 }
-
 
 fn main() {
     // get the input file name from args
@@ -62,5 +57,5 @@ fn main() {
 
     let result: i32 = sum_of_products(&products);
 
-    println!("{:?}", result); 
+    println!("{:?}", result);
 }
