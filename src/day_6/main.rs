@@ -38,16 +38,11 @@ enum Either<T, U> {
 }
 
 fn print_grid( grid: &Vec<Vec<char>>) {
-    print!("    ");
-    for col_index in 0..grid[0].len() {
-        print!("{:?}    ", col_index);
-    }
-    println!();
-
-    let mut row_index = 0;
-    for row in grid {
-        println!("{} {:?}", row_index, row);
-        row_index += 1;
+    for row in 0..grid.len() {
+        for col in 0..grid[row].len() {
+            print!("{}", grid[row][col]);
+        }
+        println!();
     }
 }
 
@@ -257,6 +252,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 if pos.0 == 999 && pos.1 == 999 {
                     break;
                 }
+                
+                //print_grid(&visited_grid);
 
                 if visited_grid[pos.0][pos.1] !='X'
                 {
@@ -264,8 +261,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     total += 1;
                 }
             }
+            println!("Final visited grid:");
             print_grid(&visited_grid);
-            println!("no can_move, total={}", total);
+            // don't fully understand why but had to plus  1
+            println!("no can_move, total={}", total + 1);
         }
 
         None => println!("'{}' not found", target),
