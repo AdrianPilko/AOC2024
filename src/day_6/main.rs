@@ -25,10 +25,30 @@ impl fmt::Display for Direction {
     }
 }
 
+enum MoveResult {
+    OffEdge = 0,
+    MoveSame = 1,
+    HitObstacle = 2,
+}
+
 #[derive(PartialEq)]
 enum Either<T, U> {
     Left(T),
     Right(U),
+}
+
+fn print_grid( grid: &Vec<Vec<char>>) {
+    print!("    ");
+    for col_index in 0..grid[0].len() {
+        print!("{:?}    ", col_index);
+    }
+    println!();
+
+    let mut row_index = 0;
+    for row in grid {
+        println!("{} {:?}", row_index, row);
+        row_index += 1;
+    }
 }
 
 fn read_grid_from_file(file_path: &str) -> io::Result<Vec<Vec<char>>> {
@@ -59,48 +79,77 @@ fn find_char_in_grid(grid: &[Vec<char>], target: char) -> Option<(usize, usize)>
     None // Return None if the character is not found
 }
 
-fn can_move(grid: &Vec<Vec<char>>, current_pos: (usize, usize), direction: &Direction) -> bool {
-    let mut result: bool = false;
+fn can_move(
+    grid: &Vec<Vec<char>>,
+    current_pos: (usize, usize),
+    direction: &Direction,
+) -> MoveResult {
+    let mut result: MoveResult = MoveResult::OffEdge;
     let width = grid.len();
     let height = grid[0].len();
-    
-    match direction {
+
+    match direction 
+    {
         Direction::Up => {
-            if current_pos.0 != 0  {
-                if current_pos.0 - 1 > 0 && (grid[current_pos.0][current_pos.1] != '#') {
-                    result = true;
+            if current_pos.0 - 1 > 0 {
+                if grid[current_pos.0-1][current_pos.1] == '#' {
+                    result = MoveResult::HitObstacle;
+                } else {
+                    result = MoveResult::MoveSame;
                 }
             } else {
-                result = false;
+                if grid[current_pos.0-1][current_pos.1] == '#' {
+                    result = MoveResult::HitObstacle;
+                } else {
+                    result = MoveResult::OffEdge;
+                }
             }
-        }
+        },
         Direction::Down => {
-            if current_pos.0 != height  {
-                if current_pos.0 + 1 < height && (grid[current_pos.0+1][current_pos.1] != '#'){
-                    result = true;
+            if current_pos.0 + 1 < height {
+                if grid[current_pos.0+1][current_pos.1] == '#' {
+                    result = MoveResult::HitObstacle;
+                } else {
+                    result = MoveResult::MoveSame;
                 }
             } else {
-                result = false;
+                if grid[current_pos.0][current_pos.1] == '#' {
+                    result = MoveResult::HitObstacle;
+                } else {
+                    result = MoveResult::OffEdge;
+                }
             }
-        }
+        },
         Direction::Right => {
-            if current_pos.1 != width   {
-                if current_pos.1 + 1 < width && (grid[current_pos.0][current_pos.1+1] != '#'){
-                    result = true;
+            if current_pos.1 + 1 < width {
+                if grid[current_pos.0][current_pos.1+1] == '#' {
+                    result = MoveResult::HitObstacle;
+                } else {
+                    result = MoveResult::MoveSame;
                 }
             } else {
-                result = false;
+                if grid[current_pos.0][current_pos.1] == '#' {
+                    result = MoveResult::HitObstacle;
+                } else {
+                    result = MoveResult::OffEdge;
+                }
             }
-        }
+        },
         Direction::Left => {
-            if current_pos.1 != 0  {
-                if current_pos.1 - 1 > 0 && (grid[current_pos.0-1][current_pos.1] != '#') {
-                    result = true;
+            if current_pos.1 - 1 > 0 {
+                if grid[current_pos.0][current_pos.1-1] == '#' {
+                    result = MoveResult::HitObstacle;
+                } else {
+                    result = MoveResult::MoveSame;
                 }
             } else {
-                result = false;
+                if grid[current_pos.0][current_pos.1-1] == '#' {
+                    result = MoveResult::HitObstacle;
+                } else {
+                    result = MoveResult::OffEdge;
+                }
             }
-        }
+        },
     }
 
     // return result
@@ -114,39 +163,51 @@ fn move_to_next(
 ) -> Option<(usize, usize)> {
     let mut result: (usize, usize) = (0, 0);
 
-    if can_move(&grid, *current_pos, &direction) {
-        match direction {
-            Direction::Up => {
-                result = (current_pos.0 - 1, current_pos.1);
-            }
-            Direction::Down => {
-                result = (current_pos.0 + 1, current_pos.1);
-            }
-            Direction::Right => {
-                result = (current_pos.0, current_pos.1 + 1);
-            }
-            Direction::Left => {
-                result = (current_pos.0, current_pos.1 - 1);
+    let move_result: MoveResult = can_move(&grid, *current_pos, &direction);
+
+    match move_result {
+        MoveResult::MoveSame => {
+            println!("MoveSame");
+            match direction {
+                Direction::Up => {
+                    result = (current_pos.0 - 1, current_pos.1);
+                }
+                Direction::Down => {
+                    result = (current_pos.0 + 1, current_pos.1);
+                }
+                Direction::Right => {
+                    result = (current_pos.0, current_pos.1 + 1);
+                }
+                Direction::Left => {
+                    result = (current_pos.0, current_pos.1 - 1);
+                }
             }
         }
-    } else {
-        match direction {
-            Direction::Up => {
-                result = (current_pos.0 + 1, current_pos.1);
-                *direction = Direction::Right;
+        MoveResult::HitObstacle => {
+            println!("HitObstacle");
+            match direction {
+                Direction::Up => {
+                    *direction = Direction::Right;
+                    result = (current_pos.0, current_pos.1 + 1);
+                }
+                Direction::Down => {
+                    *direction = Direction::Left;
+                    result = (current_pos.0, current_pos.1 - 1);
+                }
+                Direction::Right => {
+                    *direction = Direction::Down;
+                    result = (current_pos.0 + 1, current_pos.1);
+                }
+                Direction::Left => {
+                    *direction = Direction::Up;
+                    result = (current_pos.0 - 1, current_pos.1);
+                }
             }
-            Direction::Down => {
-                result = (current_pos.0 - 1, current_pos.1);
-                *direction = Direction::Left;
-            }
-            Direction::Right => {
-                result = (current_pos.0, current_pos.1 + 1);
-                *direction = Direction::Down;
-            }
-            Direction::Left => {
-                result = (current_pos.0, current_pos.1 - 1);
-                *direction = Direction::Up;
-            }
+        }
+
+        MoveResult::OffEdge => {
+            println!("OffEdge");
+            result = (999, 999);
         }
     }
     println!("horiz pos={} vert={}", current_pos.0, current_pos.1);
@@ -169,18 +230,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let grid = read_grid_from_file(input_file)?;
- 
-    print!("    ");
-    for col_index in 0 .. grid[0].len() {
-        print!("{:?}    ", col_index);
-    }
-    println!();
+    let mut visited_grid = grid.clone();
 
-    let mut row_index = 0;
-    for row in &grid {
-        println!("{} {:?}", row_index, row);
-        row_index += 1;
-    }
+    print_grid(&grid);
 
     let target = '^';
 
@@ -202,11 +254,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 println!("New direction={} pos={:?}", _direction, pos);
 
-                if (pos.0 > grid.len() || pos.1 > grid[0].len() || pos.0 <= 0 || pos.1 <= 0) {
+                if pos.0 == 999 && pos.1 == 999 {
                     break;
                 }
-                total += 1;
+
+                if visited_grid[pos.0][pos.1] !='X'
+                {
+                    visited_grid[pos.0][pos.1] ='X';
+                    total += 1;
+                }
             }
+            print_grid(&visited_grid);
             println!("no can_move, total={}", total);
         }
 
