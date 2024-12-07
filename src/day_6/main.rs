@@ -61,16 +61,13 @@ fn find_char_in_grid(grid: &[Vec<char>], target: char) -> Option<(usize, usize)>
 
 fn can_move(grid: &Vec<Vec<char>>, current_pos: (usize, usize), direction: &Direction) -> bool {
     let mut result: bool = false;
-    //let width = grid[0][0].len();
     let width = grid.len();
     let height = grid[0].len();
-
-    // compile error - need to impl partialEq on Directions enum arrrrrr! (should have used C++ I'd have done this 3 hours ago)
+    
     match direction {
         Direction::Up => {
-            println!("current_pos {:?}", current_pos);
-            if (current_pos.0 != 0) {
-                if current_pos.0 - 1 > 0 {
+            if current_pos.0 != 0  {
+                if current_pos.0 - 1 > 0 && (grid[current_pos.0][current_pos.1] != '#') {
                     result = true;
                 }
             } else {
@@ -78,20 +75,30 @@ fn can_move(grid: &Vec<Vec<char>>, current_pos: (usize, usize), direction: &Dire
             }
         }
         Direction::Down => {
-            if current_pos.0 + 1 < height {
-                result = true;
+            if current_pos.0 != height  {
+                if current_pos.0 + 1 < height && (grid[current_pos.0+1][current_pos.1] != '#'){
+                    result = true;
+                }
+            } else {
+                result = false;
             }
         }
         Direction::Right => {
-            if current_pos.1 + 1 < width {
-                result = true;
+            if current_pos.1 != width   {
+                if current_pos.1 + 1 < width && (grid[current_pos.0][current_pos.1+1] != '#'){
+                    result = true;
+                }
+            } else {
+                result = false;
             }
         }
         Direction::Left => {
-            if current_pos.1 - 1 > 0 {
-                {
+            if current_pos.1 != 0  {
+                if current_pos.1 - 1 > 0 && (grid[current_pos.0-1][current_pos.1] != '#') {
                     result = true;
                 }
+            } else {
+                result = false;
             }
         }
     }
@@ -103,7 +110,7 @@ fn can_move(grid: &Vec<Vec<char>>, current_pos: (usize, usize), direction: &Dire
 fn move_to_next(
     grid: &Vec<Vec<char>>,
     current_pos: &(usize, usize),
-    mut direction: &Direction,
+    direction: &mut Direction,
 ) -> Option<(usize, usize)> {
     let mut result: (usize, usize) = (0, 0);
 
@@ -111,68 +118,34 @@ fn move_to_next(
         match direction {
             Direction::Up => {
                 result = (current_pos.0 - 1, current_pos.1);
-                println!("direction={}", direction);
-                if result == (0, 0) {
-                    panic!("pos = 0 0");
-                    direction = &Direction::Right;
-                    println!("new direction={}", direction);
-                }
             }
             Direction::Down => {
                 result = (current_pos.0 + 1, current_pos.1);
-                println!("direction={}", direction);
-                if result == (0, 0) {
-                    println!("old direction={}", direction);
-                    direction = &Direction::Left;
-                    println!("new direction={}", direction);
-                }
             }
             Direction::Right => {
                 result = (current_pos.0, current_pos.1 + 1);
-                println!("direction={}", direction);
-                if result == (0, 0) {
-                    println!("old direction={}", direction);
-                    direction = &Direction::Down;
-                    println!("new direction={}", direction);
-                }
             }
             Direction::Left => {
                 result = (current_pos.0, current_pos.1 - 1);
-                println!("direction={}", direction);
-                if result == (0, 0) {
-                    println!("old direction={}", direction);
-                    direction = &Direction::Up;
-                    println!("new direction={}", direction);
-                }
             }
         }
     } else {
         match direction {
             Direction::Up => {
-                result = (current_pos.0, current_pos.1 + 1);
-                println!("old direction={}", direction);
-                direction = &Direction::Right;
-                println!("new direction={}", direction);
-                //  panic!("pos = 0 0");
+                result = (current_pos.0 + 1, current_pos.1);
+                *direction = Direction::Right;
             }
             Direction::Down => {
                 result = (current_pos.0 - 1, current_pos.1);
-                println!("old direction={}", direction);
-                direction = &Direction::Left;
-                println!("new direction={}", direction);
+                *direction = Direction::Left;
             }
             Direction::Right => {
                 result = (current_pos.0, current_pos.1 + 1);
-                println!("old direction={}", direction);
-                direction = &Direction::Down;
-                println!("new direction={}", direction);
+                *direction = Direction::Down;
             }
             Direction::Left => {
                 result = (current_pos.0, current_pos.1 - 1);
-
-                println!("old direction={}", direction);
-                direction = &Direction::Up;
-                println!("new direction={}", direction);
+                *direction = Direction::Up;
             }
         }
     }
@@ -196,9 +169,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let grid = read_grid_from_file(input_file)?;
+ 
+    print!("    ");
+    for col_index in 0 .. grid[0].len() {
+        print!("{:?}    ", col_index);
+    }
+    println!();
 
+    let mut row_index = 0;
     for row in &grid {
-        println!("{:?}", row);
+        println!("{} {:?}", row_index, row);
+        row_index += 1;
     }
 
     let target = '^';
@@ -215,12 +196,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut total = 0;
 
             while Some(pos).is_some() {
-                pos = move_to_next(&grid, &pos, &_direction).expect("done");
+                println!("Old direction={} pos={:?}", _direction, pos);
 
-                println!("New Position = {:?}", pos);
+                pos = move_to_next(&grid, &pos, &mut _direction).expect("done");
 
-                if (pos.0 > grid.len() || pos.1 > grid[0].len())
-                {
+                println!("New direction={} pos={:?}", _direction, pos);
+
+                if (pos.0 > grid.len() || pos.1 > grid[0].len() || pos.0 <= 0 || pos.1 <= 0) {
                     break;
                 }
                 total += 1;
