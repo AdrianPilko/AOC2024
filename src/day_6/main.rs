@@ -3,6 +3,8 @@ use std::fmt;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+
+const OFF_EDGE_INDICATOR: usize = 9999;
 // advent of code 2024 : day 6
 // build with: cargo build
 // run with  : cargo run --bin day_6 ./src/day_6/intput.txt
@@ -37,7 +39,7 @@ enum Either<T, U> {
     Right(U),
 }
 
-fn print_grid( grid: &Vec<Vec<char>>) {
+fn print_grid(grid: &Vec<Vec<char>>) {
     for row in 0..grid.len() {
         for col in 0..grid[row].len() {
             print!("{}", grid[row][col]);
@@ -83,26 +85,25 @@ fn can_move(
     let width = grid.len();
     let height = grid[0].len();
 
-    match direction 
-    {
+    match direction {
         Direction::Up => {
             if current_pos.0 - 1 > 0 {
-                if grid[current_pos.0-1][current_pos.1] == '#' {
+                if grid[current_pos.0 - 1][current_pos.1] == '#' {
                     result = MoveResult::HitObstacle;
                 } else {
                     result = MoveResult::MoveSame;
                 }
             } else {
-                if grid[current_pos.0-1][current_pos.1] == '#' {
+                if grid[current_pos.0 - 1][current_pos.1] == '#' {
                     result = MoveResult::HitObstacle;
                 } else {
                     result = MoveResult::OffEdge;
                 }
             }
-        },
+        }
         Direction::Down => {
             if current_pos.0 + 1 < height {
-                if grid[current_pos.0+1][current_pos.1] == '#' {
+                if grid[current_pos.0 + 1][current_pos.1] == '#' {
                     result = MoveResult::HitObstacle;
                 } else {
                     result = MoveResult::MoveSame;
@@ -114,10 +115,10 @@ fn can_move(
                     result = MoveResult::OffEdge;
                 }
             }
-        },
+        }
         Direction::Right => {
             if current_pos.1 + 1 < width {
-                if grid[current_pos.0][current_pos.1+1] == '#' {
+                if grid[current_pos.0][current_pos.1 + 1] == '#' {
                     result = MoveResult::HitObstacle;
                 } else {
                     result = MoveResult::MoveSame;
@@ -129,22 +130,22 @@ fn can_move(
                     result = MoveResult::OffEdge;
                 }
             }
-        },
+        }
         Direction::Left => {
             if current_pos.1 - 1 > 0 {
-                if grid[current_pos.0][current_pos.1-1] == '#' {
+                if grid[current_pos.0][current_pos.1 - 1] == '#' {
                     result = MoveResult::HitObstacle;
                 } else {
                     result = MoveResult::MoveSame;
                 }
             } else {
-                if grid[current_pos.0][current_pos.1-1] == '#' {
+                if grid[current_pos.0][current_pos.1 - 1] == '#' {
                     result = MoveResult::HitObstacle;
                 } else {
                     result = MoveResult::OffEdge;
                 }
             }
-        },
+        }
     }
 
     // return result
@@ -202,7 +203,7 @@ fn move_to_next(
 
         MoveResult::OffEdge => {
             println!("OffEdge");
-            result = (999, 999);
+            result = (OFF_EDGE_INDICATOR, OFF_EDGE_INDICATOR);
         }
     }
     println!("horiz pos={} vert={}", current_pos.0, current_pos.1);
@@ -249,15 +250,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 println!("New direction={} pos={:?}", _direction, pos);
 
-                if pos.0 == 999 && pos.1 == 999 {
+                if pos.0 == OFF_EDGE_INDICATOR && pos.1 == OFF_EDGE_INDICATOR {
                     break;
                 }
-                
+
                 //print_grid(&visited_grid);
 
-                if visited_grid[pos.0][pos.1] !='X'
-                {
-                    visited_grid[pos.0][pos.1] ='X';
+                if visited_grid[pos.0][pos.1] != 'X' {
+                    visited_grid[pos.0][pos.1] = 'X';
                     total += 1;
                 }
             }
