@@ -118,30 +118,28 @@ fn find_target(line: &Vec<char>, target: &Vec<char>) -> i32 {
     let mut total = 0;
 
     // this assumes consistent column length
-    //println!("line = {:?}", line);
+    println!(" line = {:?} ", line);
 
     let mut search_index: usize = 0;
     let search_limit: usize = target.len();
 
     for c in line  {
         if *c == target[search_index] {
+            print!("{} ", c);
             search_index += 1;
             if search_index == search_limit {
-      //          println!("FOUND WHOLE WORD");
+                println!(" FOUND WHOLE WORD");
                 search_index = 0;
                 total += 1;
             }
         } else {
             // check the previous search first before resetting
-            // this allows for doubles, for example XX
-            if search_index > 0 {
-                if *c == target[search_index - 1] {
+            // this allows for doubles on the start letter, for example XX
+                if *c == 'X' && search_index ==1 {
+                 // do nothing 
                 } else {
                     search_index = 0;
                 }
-            } else {
-                search_index = 0;
-            }
         }
     }
 
@@ -192,10 +190,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("total after horiz back {}", total);
 
-    for col in 0..grid[0].len(){
+    for col in 0..grid.len(){
         let mut line:Vec<char> = Vec::new();
         for row in 0..grid[col].len() {
-            line.push(grid[col][row]);
+            line.push(grid[row][col]);
         } 
         total += find_target(&line, &target);
     }
