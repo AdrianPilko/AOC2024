@@ -118,7 +118,7 @@ fn find_target(line: &Vec<char>, target: &Vec<char>) -> i32 {
     let mut total = 0;
 
     // this assumes consistent column length
-    println!("line = {:?}", line);
+    //println!("line = {:?}", line);
 
     let mut search_index: usize = 0;
     let search_limit: usize = target.len();
@@ -127,14 +127,14 @@ fn find_target(line: &Vec<char>, target: &Vec<char>) -> i32 {
         if *c == target[search_index] {
             search_index += 1;
             if search_index == search_limit {
-                println!("FOUND WHOLE WORD");
+      //          println!("FOUND WHOLE WORD");
                 search_index = 0;
                 total += 1;
             }
         } else {
             // check the previous search first before resetting
             // this allows for doubles, for example XX
-            if (search_index > 0) {
+            if search_index > 0 {
                 if *c == target[search_index - 1] {
                 } else {
                     search_index = 0;
@@ -164,14 +164,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // read in the file
     let grid = read_grid_from_file(input_file)?;
+    //let mut answer_grid = vec![vec!['.'; grid.len()]; grid[0].len()];
 
     // print what we read in
     print_grid(&grid);
 
     // find XMAS horizontally vertically and diagonally (forwards and in reverse)
-
-    // search direction is the offset in row col index to where to look for the next character
-    let search_direction: (i32, i32) = (0, 0);
 
     let mut target: Vec<char> = Vec::new();
 
@@ -182,19 +180,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let mut total = 0;
 
-    
-    println!("Horiz forwards");
     for i in 0..grid.len() {
         total += find_target(&grid[i], &target);
     }
+    println!("total after horiz forward {}", total);
     
-    println!("Horiz back");
     for i in 0..grid.len() {
         let mut line: Vec<char> = grid[i].clone();
         line.reverse();
         total += find_target(&line, &target);
     }
-    println!("Vert down");
+    println!("total after horiz back {}", total);
+
     for col in 0..grid[0].len(){
         let mut line:Vec<char> = Vec::new();
         for row in 0..grid[col].len() {
@@ -202,35 +199,52 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         } 
         total += find_target(&line, &target);
     }
+    println!("total after vert down {}", total);
 
-    println!("Vert up");
-    for col in (0..grid[0].len()){
+    for col in 0..grid[0].len(){
         let mut line:Vec<char> = Vec::new();
         for row in (0..grid[col].len()).rev() {
             line.push(grid[row][col]);
         } 
         total += find_target(&line, &target);
     }
-
-    println!("diag down left right");
+    println!("total after vert up {}", total);
     
-    let mut main_diagonals = get_all_main_diagonals(&grid);
-    let mut anti_diagonals = get_all_anti_diagonals(&grid);
+    let main_diagonals = get_all_main_diagonals(&grid);
+    let cloned_main_diag = main_diagonals.clone();
+
+    let anti_diagonals = get_all_anti_diagonals(&grid);
+    let cloned_anti_diag = anti_diagonals.clone();
+
     for diag in main_diagonals{
         total += find_target(&diag, &target);
     }
+    println!("total after diag main down {}", total);
+
     for diag in anti_diagonals{
         total += find_target(&diag, &target);
     }
-    //main_diagonals.reverse();
-    //for diag in main_diagonals{
-    //    total += find_target(&diag, &target);
-    //}
-    //anti_diagonals.reverse();
-    //for diag in anti_diagonals{
-    //    total += find_target(&diag, &target);
-    //}
+    println!("total after diag anti down {}", total);
+    
+    for the_vecs in cloned_main_diag{
+        let mut diag_reverse = Vec::new();
 
+        for c in (0..the_vecs.len()).rev(){
+            diag_reverse.push(the_vecs[c]);
+        }
+        total += find_target(&diag_reverse, &target);
+    }
+    println!("total after diag main up {}", total);
+
+    for the_vecs in cloned_anti_diag{
+        let mut diag_reverse = Vec::new();
+
+        for c in (0..the_vecs.len()).rev(){
+            diag_reverse.push(the_vecs[c]);
+        }
+        total += find_target(&diag_reverse, &target);
+    }
+    println!("total after diag anti up {}", total);
 
     println!("total = {}\n", total);
     Ok(())
