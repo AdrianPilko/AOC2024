@@ -73,10 +73,8 @@ fn find_in_a_row_backwards(input: &str) -> i32 {
     res
 }
 
-fn find_target(grid: &Vec<Vec<char>>, target: &str, search_direction: (i32, i32)) -> i32 {
+fn find_target(grid: &Vec<Vec<char>>, target: Vec<char>, search_direction: (i32, i32)) -> i32 {
     let mut total = 0;
-
-    let target_str = target.to_string();
 
     // this assumes consistent column length
     println!(
@@ -93,19 +91,40 @@ fn find_target(grid: &Vec<Vec<char>>, target: &str, search_direction: (i32, i32)
             for col in 0..grid[0].len() {
                 // the idea is we use the search index to go through and if we get a hit keep going
                 // if not then just reset the search
-                if grid[row][col] != target_str[search_index] {
-                    search_index = 0;
-                    println!(
-                        "found {}, search for {}, row {} col {} not found",
-                        grid[row][col], target_str[search_index], row, col
-                    );
-                } else {
+
+                //println!(
+                //    "searched {} got {}, row {} col {} index = {}",
+                //    target[search_index],grid[row][col], row, col, search_index
+                //);
+
+                if grid[row][col] == target[search_index] {
                     search_index += 1;
+                    
+                    //println!("FOUND char, search index={}", search_index);
+                    
                     if search_index == search_limit {
-                        println!("FOUND row {} col {} ", row, col);
+                        println!("FOUND WHOLE WORD row {} col {} ", row, col);
                         search_index = 0;
                         total += 1;
                     }
+
+                } else {
+                    // check the previous search first before resetting
+                    // this allows for doubles, for example XX 
+                    if (search_index > 0)
+                    {
+                        if grid[row][col] == target[search_index-1] {
+                  //          println!("found in else")
+                        }else
+                        {
+                            search_index = 0;
+                    //        println!("reset 0");
+                        }
+                    }
+                    else {
+                        search_index = 0;
+                      //  println!("reset 1");
+                    }                                      
                 }
             }
         }
@@ -138,8 +157,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // search direction is the offset in row col index to where to look for the next character
     let search_direction: (i32, i32) = (0, 0);
-    let target = "XMAS";
 
+    let mut target:Vec<char> = Vec::new();
+    
+    target.push('X');
+    target.push('M');
+    target.push('A');
+    target.push('S');
     let mut total = 0;
     total = find_target(&grid, target, search_direction);
 
