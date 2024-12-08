@@ -115,32 +115,19 @@ fn get_all_anti_diagonals<T: Clone>(matrix: &Vec<Vec<T>>) -> Vec<Vec<T>> {
 
 
 fn find_target(line: &Vec<char>, target: &Vec<char>) -> i32 {
+    
     let mut total = 0;
+    let mut start = 0;
 
     // this assumes consistent column length
     println!(" line = {:?} ", line);
 
-    let mut search_index: usize = 0;
-    let search_limit: usize = target.len();
-
-    for c in line  {
-        if *c == target[search_index] {
-            print!("{} ", c);
-            search_index += 1;
-            if search_index == search_limit {
-                println!(" FOUND WHOLE WORD");
-                search_index = 0;
-                total += 1;
-            }
-        } else {
-            // check the previous search first before resetting
-            // this allows for multiple on the start letter, for example XX
-                if *c == 'X' && (search_index == 1 || search_index == 0){
-                 // do nothing - keep same search index
-                } else {
-                    search_index = 0;
-                }
-        }
+    let target_as_string: String = target.into_iter().collect(); 
+    let line_as_string: String = line.into_iter().collect();
+    
+    while let Some(pos) = line_as_string[start..].find(target_as_string.as_str()) {
+        total += 1;
+        start += pos + target_as_string.len(); // Move past the current match
     }
 
     total
