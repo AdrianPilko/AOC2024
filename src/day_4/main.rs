@@ -3,12 +3,9 @@ use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 
-
 // advent of code 2024 : day 4
 // build with: cargo build
 // run with  : cargo run --bin day_4 ./src/day_4/intput.txt
-
-
 
 fn read_grid_from_file(file_path: &str) -> io::Result<Vec<Vec<char>>> {
     let path = Path::new(file_path);
@@ -76,46 +73,48 @@ fn find_in_a_row_backwards(input: &str) -> i32 {
     res
 }
 
-fn find_target(grid: &Vec<Vec<char>>,target:&str,search_direction: (i32,i32)) -> i32
-{
+fn find_target(grid: &Vec<Vec<char>>, target: &str, search_direction: (i32, i32)) -> i32 {
     let mut total = 0;
 
     let target_str = target.to_string();
 
     // this assumes consistent column length
-    println!("target length = {} grid[0].len() {}\n",target.len(),grid[0].len());
-    // search horizontally 
-    if search_direction.0 == 0
-    {
+    println!(
+        "target length = {} grid[0].len() {}\n",
+        target.len(),
+        grid[0].len()
+    );
+    // search horizontally
+    if search_direction.0 == 0 {
         // search index increments by 1 for each grid location until found then resets
-        let mut search_index:usize = 0;
-        let search_limit:usize = target.len(); 
+        let mut search_index: usize = 0;
+        let search_limit: usize = target.len();
         for row in 0..grid.len() {
-            for col in 0..grid[0].len()  {
+            for col in 0..grid[0].len() {
                 // the idea is we use the search index to go through and if we get a hit keep going
                 // if not then just reset the search
-                if grid[row][col] != target_str[search_index]  {
+                if grid[row][col] != target_str[search_index] {
                     search_index = 0;
-                    println!("found {}, search for {}, row {} col {} not found", grid[row][col], target_str[search_index],row, col);
-                } 
-                else
-                {
+                    println!(
+                        "found {}, search for {}, row {} col {} not found",
+                        grid[row][col], target_str[search_index], row, col
+                    );
+                } else {
                     search_index += 1;
-                    if search_index == search_limit{
-                       println!("FOUND row {} col {} ", row, col);
-                       search_index = 0;
-                       total += 1;
+                    if search_index == search_limit {
+                        println!("FOUND row {} col {} ", row, col);
+                        search_index = 0;
+                        total += 1;
                     }
                 }
             }
-        }  
+        }
     }
 
-   
     total
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>>  {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     // get the input file name from args
     let args: Vec<String> = env::args().collect();
     let input_file: &String = &args[1];
@@ -129,20 +128,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>>  {
         }
     }
 
-    // read in the file 
+    // read in the file
     let grid = read_grid_from_file(input_file)?;
-    
+
     // print what we read in
     print_grid(&grid);
 
     // find XMAS horizontally vertically and diagonally (forwards and in reverse)
-    
+
     // search direction is the offset in row col index to where to look for the next character
-    let search_direction: (i32, i32) = (0,0);
+    let search_direction: (i32, i32) = (0, 0);
     let target = "XMAS";
 
     let mut total = 0;
-    total = find_target(&grid,target,search_direction);
+    total = find_target(&grid, target, search_direction);
 
     println!("total = {}\n", total);
     Ok(())
