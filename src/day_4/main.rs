@@ -134,9 +134,9 @@ fn find_target(line: &Vec<char>, target: &Vec<char>) -> i32 {
             }
         } else {
             // check the previous search first before resetting
-            // this allows for doubles on the start letter, for example XX
-                if *c == 'X' && search_index ==1 {
-                 // do nothing 
+            // this allows for multiple on the start letter, for example XX
+                if *c == 'X' && (search_index == 1 || search_index == 0){
+                 // do nothing - keep same search index
                 } else {
                     search_index = 0;
                 }
